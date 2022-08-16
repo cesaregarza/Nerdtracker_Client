@@ -207,5 +207,5 @@ class TestSnapshotList:
             empty_listing,
         ]
 
-        for i, listing in enumerate(snapshot_list.list):
-            assert listing == expected_order[i]
+        for actual, expected in zip(snapshot_list.list, expected_order):
+            assert actual == expected
