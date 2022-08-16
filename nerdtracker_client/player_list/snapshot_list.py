@@ -61,7 +61,7 @@ class SnapshotList:
         """
 
         fed_snapshot = []
-        for i, snapshot_row in enumerate(initial_snapshot):
+        for snapshot_row in initial_snapshot:
             if (snapshot_row == "") or (snapshot_row is None):
                 listing: Listing | EmptyListing = EmptyListing()
             else:
