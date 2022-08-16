@@ -9,6 +9,7 @@ numpy = "*"
 mss = "*"
 pillow = "*"
 fuzzywuzzy = "*"
+python-levenshtein = "*"
 
 [dev-packages]
 mypy = "*"
@@ -16,6 +17,8 @@ black = "*"
 pytest = "*"
 ipykernel = "*"
 flake8 = "*"
+freezegun = "*"
+isort = "*"
 
 [requires]
 python_version = "3.10"

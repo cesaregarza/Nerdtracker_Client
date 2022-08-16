@@ -7,11 +7,24 @@ authors = [
 ]
 requires-python = ">=3.10"
 
+[tool.pytest.ini_options]
+testpaths = "nerdtracker_client/tests"
+addopts = [
+    "-v",
+    "--tb=auto",
+    "--showlocals",
+    "--color=yes",
+]
+
 [tool.black]
 line-length = 80
 target-version = ["py310"]
-extend-exclude = ["\\.ipynb$", "\\.pyi$"]
 
 [tool.mypy]
 python_version = "3.10"
 ignore_missing_imports = true
+
+[tool.isort]
+profile = "black"
+line_length = 80
+src_paths = ["nerdtracker_client"]

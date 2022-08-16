@@ -1,4 +1,5 @@
 import time
+
 from fuzzywuzzy import fuzz
 
 # Constants
@@ -73,7 +74,7 @@ class Listing:
         minutes, seconds = divmod(seconds, 60)
         return f"{int(minutes):02d}m:{int(seconds):02d}s"
 
-    def update_time(self, new_time: float) -> None:
+    def update_time(self, new_time: float | None) -> None:
         """Updates the listing time to the current time"""
 
         self.listing_time = time.time() if new_time is None else new_time
@@ -151,7 +152,7 @@ class EmptyListing(Listing):
 
         return ""
 
-    def update_time(self, new_time: float) -> None:
+    def update_time(self, new_time: float | None) -> None:
         """Updates the listing time to the current time"""
 
         return None
