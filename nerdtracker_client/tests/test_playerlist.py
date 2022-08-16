@@ -80,12 +80,32 @@ class TestListing:
 
         assert listing.listing_time == DATE_FLOAT
 
-    @freeze_time(DATE_STRING)
     def test_is_empty_property(self) -> None:
         """Tests the is_empty property of the listing class"""
 
         listing = Listing("5")
         assert listing.is_empty is False
+
+    def test_update_id_full_match(self) -> None:
+        """Tests the update_id_full_match method of the listing class"""
+
+        listing = Listing("5")
+        assert listing.full_match is False
+
+        listing.update_id_full_match("6")
+        assert listing.listing_id == "6"
+        assert listing.full_match is True
+
+    def test_update_id_full_match_attempt_update_again(self) -> None:
+        """Tests the update_id_full_match method on a listing with an already
+        full match"""
+
+        listing = Listing("5", True)
+        assert listing.full_match is True
+
+        listing.update_id_full_match("6")
+        assert listing.listing_id == "5"
+        assert listing.full_match is True
 
 
 class TestEmptyListing:
@@ -121,7 +141,7 @@ class TestEmptyListing:
         listing = EmptyListing()
         second_listing = EmptyListing()
 
-        assert listing != second_listing
+        assert listing == second_listing
 
     def test_time_since_listing(self) -> None:
         """Tests the time_since_listing method of the empty listing class"""
@@ -152,3 +172,40 @@ class TestEmptyListing:
         listing = EmptyListing()
 
         assert listing.is_empty is True
+
+
+class TestSnapshotList:
+    @freeze_time(DATE_STRING)
+    def test_init(self) -> None:
+        """Tests the init method of the snapshot list class"""
+
+        snapshot_list = SnapshotList([], 10, 300.0)
+
+        assert snapshot_list.list == []
+        assert snapshot_list.last_update == DATE_FLOAT
+        assert snapshot_list.max_list_length == 10
+        assert snapshot_list.max_list_age == 300
+
+    @freeze_time(DATE_STRING)
+    def test_from_list_of_strings(self) -> None:
+        """Tests the from_list_of_strings method of the snapshot list class"""
+
+        snapshot_list = SnapshotList.from_list_of_strings(
+            ["1", "2", "3", "", None]
+        )
+
+        one_listing = Listing("1")
+        two_listing = Listing("2")
+        three_listing = Listing("3")
+        empty_listing = EmptyListing()
+
+        expected_order = [
+            one_listing,
+            two_listing,
+            three_listing,
+            empty_listing,
+            empty_listing,
+        ]
+
+        for i, listing in enumerate(snapshot_list.list):
+            assert listing == expected_order[i]

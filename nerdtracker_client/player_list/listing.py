@@ -141,7 +141,7 @@ class EmptyListing(Listing):
         Returns:
             bool: Whether the two listings are equal...ish
         """
-        return False
+        return isinstance(other, EmptyListing)
 
     def time_since_listing(self) -> str:
         """Returns the time since the listing was created
@@ -164,37 +164,3 @@ class EmptyListing(Listing):
             new_id (str | int): The new listing id to update to
         """
         return None
-
-
-class SnapshotList:
-    """SnapshotList class is a class that tries to keep a real-time list based
-    on the snapshot fed to it. More formally, it keeps a list of length n based
-    on a snapshot fed to it of length k. It will then attempt to update the list
-    based on the snapshot and assumptions fed to it.
-    """
-
-    def __init__(
-        self,
-        initial_snapshot: list,
-        max_list_length: int = 12,
-        max_list_age: float = 5.0 * 60.0,
-    ) -> None:
-        """Constructor for the Listing class.
-
-        Args:
-            initial_snapshot (list): The initial snapshot to use to initialize
-            the list.
-            max_list_length (int, optional): Maximum length the list will
-            attempt to keep. Defaults to 12.
-            max_list_age (float, optional): Maximum age before the list is
-            considered stale. Defaults to 5 minutes.
-        """
-        self.list = initial_snapshot
-        self.last_update = time.time()
-        self.max_list_length = max_list_length
-        self.max_list_age = max_list_age
-
-    @property
-    def __is_list_stale(self) -> bool:
-        """Returns whether the list is stale or not"""
-        return (time.time() - self.last_update) > self.max_list_age

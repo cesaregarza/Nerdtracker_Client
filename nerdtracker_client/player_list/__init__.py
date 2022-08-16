@@ -1,5 +1,2 @@
-from nerdtracker_client.player_list.listing import (
-    EmptyListing,
-    Listing,
-    SnapshotList,
-)
+from nerdtracker_client.player_list.listing import EmptyListing, Listing
+from nerdtracker_client.player_list.snapshot_list import SnapshotList
