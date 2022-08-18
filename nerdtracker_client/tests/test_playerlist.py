@@ -186,6 +186,19 @@ class TestSnapshotList:
         assert snapshot_list.max_list_length == 10
         assert snapshot_list.max_list_age == 300
 
+    def test_in(self) -> None:
+        """Tests the __contains__ method of the snapshot list class"""
+
+        listing_1 = Listing("5")
+        listing_2 = Listing("55555555555555555555")
+        listing_2_close = Listing("55555555555555555556")
+        snapshot_list = SnapshotList([listing_1, listing_2], 10, 300.0)
+
+        assert listing_1 in snapshot_list
+        assert Listing("5") in snapshot_list
+        assert Listing("6") not in snapshot_list
+        assert listing_2_close in snapshot_list
+
     @freeze_time(DATE_STRING)
     def test_from_list_of_strings(self) -> None:
         """Tests the from_list_of_strings method of the snapshot list class"""
@@ -209,3 +222,49 @@ class TestSnapshotList:
 
         for actual, expected in zip(snapshot_list.list, expected_order):
             assert actual == expected
+
+    def test_sequential_forward_no_drops_no_overlap_no_empty(self) -> None:
+        """Tests the sequential_forward method of the snapshot list class with
+        no drops"""
+
+        expected_order = [
+            Listing("1"),
+            Listing("2"),
+            Listing("3"),
+            Listing("4"),
+            Listing("5"),
+            Listing("6"),
+            Listing("7"),
+            Listing("8"),
+            Listing("9"),
+            Listing("10"),
+        ]
+        initial_snapshot = expected_order[:4]
+
+        snapshot_list = SnapshotList(initial_snapshot, 10, 300.0)
+        snapshot_list.new_snapshot(expected_order[4:])
+
+        assert snapshot_list.list == expected_order
+
+    def test_sequential_forward_no_drops_w_overlap_no_empty(self) -> None:
+        """Tests the sequential_forward method of the snapshot list class with
+        no drops and an overlap"""
+
+        expected_order = [
+            Listing("1"),
+            Listing("2"),
+            Listing("3"),
+            Listing("4"),
+            Listing("5"),
+            Listing("6"),
+            Listing("7"),
+            Listing("8"),
+            Listing("9"),
+            Listing("10"),
+        ]
+        initial_snapshot = expected_order[:4]
+
+        snapshot_list = SnapshotList(initial_snapshot, 10, 300.0)
+        snapshot_list.new_snapshot(expected_order[2:])
+
+        assert snapshot_list.list == expected_order
