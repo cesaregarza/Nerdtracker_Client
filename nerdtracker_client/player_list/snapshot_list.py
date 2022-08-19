@@ -2,6 +2,10 @@ import time
 from typing import TypeVar, Union
 
 from nerdtracker_client.player_list.listing import EmptyListing, Listing
+from nerdtracker_client.util import (
+    identify_chunks,
+    identify_chunks_alternating_indices,
+)
 
 T = TypeVar("T", bound=Listing)
 

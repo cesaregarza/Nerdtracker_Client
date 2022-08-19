@@ -54,3 +54,35 @@ def test_identify_chunks_alternating_indices() -> None:
     expected_output = [3, 4, 7, 9]
 
     assert identify_chunks_alternating_indices(data) == expected_output
+
+
+def test_identify_chunks_alternating_indices_all_nones() -> None:
+    """Tests the identify_chunks_alternating_indices function with all Nones"""
+
+    data = [
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    ]
+    expected_output: list[int] = [0]
+
+    assert identify_chunks_alternating_indices(data) == expected_output
+
+
+def test_identify_chunks_alternating_indices_no_nones() -> None:
+    """Tests the identify_chunks_alternating_indices function with no Nones"""
+
+    data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    expected_output: list[int] = []
+
+    assert identify_chunks_alternating_indices(data) == expected_output
