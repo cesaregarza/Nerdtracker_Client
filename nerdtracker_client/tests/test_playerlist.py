@@ -268,3 +268,28 @@ class TestSnapshotList:
         snapshot_list.new_snapshot(expected_order[2:])
 
         assert snapshot_list.list == expected_order
+
+    def test_sequential_forward_no_drops_no_overlap_w_empty(self) -> None:
+        """Tests the sequential_forward method of the snapshot list class with
+        drops"""
+
+        expected_order = [
+            EmptyListing(),
+            Listing("1"),
+            Listing("2"),
+            Listing("3"),
+            Listing("4"),
+            EmptyListing(),
+            Listing("5"),
+            Listing("6"),
+            Listing("7"),
+            Listing("8"),
+            Listing("9"),
+            Listing("10"),
+        ]
+        initial_snapshot = expected_order[:5]
+
+        snapshot_list = SnapshotList(initial_snapshot, 10, 300.0)
+        snapshot_list.new_snapshot(expected_order[5:])
+
+        assert snapshot_list.list == expected_order
