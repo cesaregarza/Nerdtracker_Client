@@ -281,16 +281,23 @@ class TestSnapshotList:
 
         assert snapshot_list.list == expected_order
 
-    def test_sequential_forward_w_drops_no_overlap_no_empty(
-        self, ten_listings_no_empty: list[Listing]
+    def test_sequential_forward_w_drops_w_overlap_no_empty(
+        self,
+        ten_listings_no_empty: list[Listing],
+        nine_listings_removed_6: list[Listing],
     ) -> None:
         """Tests the sequential_forward method of the snapshot list class with
         drops"""
 
-        expected_order = ten_listings_no_empty
-        initial_snapshot = expected_order[:4]
+        expected_order = nine_listings_removed_6
+        initial_snapshot = ten_listings_no_empty[:6]
 
         snapshot_list = SnapshotList(initial_snapshot, 10, 300.0)
-        snapshot_list.new_snapshot(expected_order[2:])
+        snapshot_without_index_4 = [
+            item
+            for index, item in enumerate(ten_listings_no_empty)
+            if index != 4 and index >= 2
+        ]
+        snapshot_list.new_snapshot(snapshot_without_index_4)
 
         assert snapshot_list.list == expected_order
