@@ -1,3 +1,5 @@
+from typing import Union
+
 import pytest
 from freezegun import freeze_time
 
@@ -223,22 +225,13 @@ class TestSnapshotList:
         for actual, expected in zip(snapshot_list.list, expected_order):
             assert actual == expected
 
-    def test_sequential_forward_no_drops_no_overlap_no_empty(self) -> None:
+    def test_sequential_forward_no_drops_no_overlap_no_empty(
+        self, ten_listings_no_empty: list[Listing]
+    ) -> None:
         """Tests the sequential_forward method of the snapshot list class with
         no drops"""
 
-        expected_order = [
-            Listing("1"),
-            Listing("2"),
-            Listing("3"),
-            Listing("4"),
-            Listing("5"),
-            Listing("6"),
-            Listing("7"),
-            Listing("8"),
-            Listing("9"),
-            Listing("10"),
-        ]
+        expected_order = ten_listings_no_empty
         initial_snapshot = expected_order[:4]
 
         snapshot_list = SnapshotList(initial_snapshot, 10, 300.0)
@@ -246,22 +239,13 @@ class TestSnapshotList:
 
         assert snapshot_list.list == expected_order
 
-    def test_sequential_forward_no_drops_w_overlap_no_empty(self) -> None:
+    def test_sequential_forward_no_drops_w_overlap_no_empty(
+        self, ten_listings_no_empty: list[Listing]
+    ) -> None:
         """Tests the sequential_forward method of the snapshot list class with
         no drops and an overlap"""
 
-        expected_order = [
-            Listing("1"),
-            Listing("2"),
-            Listing("3"),
-            Listing("4"),
-            Listing("5"),
-            Listing("6"),
-            Listing("7"),
-            Listing("8"),
-            Listing("9"),
-            Listing("10"),
-        ]
+        expected_order = ten_listings_no_empty
         initial_snapshot = expected_order[:4]
 
         snapshot_list = SnapshotList(initial_snapshot, 10, 300.0)
@@ -269,27 +253,44 @@ class TestSnapshotList:
 
         assert snapshot_list.list == expected_order
 
-    def test_sequential_forward_no_drops_no_overlap_w_empty(self) -> None:
+    def test_sequential_forward_no_drops_no_overlap_w_empty(
+        self, twelve_listings_two_empty: list[Union[Listing, EmptyListing]]
+    ) -> None:
         """Tests the sequential_forward method of the snapshot list class with
         drops"""
 
-        expected_order = [
-            EmptyListing(),
-            Listing("1"),
-            Listing("2"),
-            Listing("3"),
-            Listing("4"),
-            EmptyListing(),
-            Listing("5"),
-            Listing("6"),
-            Listing("7"),
-            Listing("8"),
-            Listing("9"),
-            Listing("10"),
-        ]
+        expected_order = twelve_listings_two_empty
         initial_snapshot = expected_order[:5]
 
         snapshot_list = SnapshotList(initial_snapshot, 10, 300.0)
         snapshot_list.new_snapshot(expected_order[5:])
+
+        assert snapshot_list.list == expected_order
+
+    def test_sequential_forward_no_drops_w_overlap_w_empty(
+        self, twelve_listings_two_empty: list[Union[Listing, EmptyListing]]
+    ) -> None:
+        """Tests the sequential_forward method of the snapshot list class with
+        drops and an overlap"""
+
+        expected_order = twelve_listings_two_empty
+        initial_snapshot = expected_order[:7]
+
+        snapshot_list = SnapshotList(initial_snapshot, 10, 300.0)
+        snapshot_list.new_snapshot(expected_order[5:])
+
+        assert snapshot_list.list == expected_order
+
+    def test_sequential_forward_w_drops_no_overlap_no_empty(
+        self, ten_listings_no_empty: list[Listing]
+    ) -> None:
+        """Tests the sequential_forward method of the snapshot list class with
+        drops"""
+
+        expected_order = ten_listings_no_empty
+        initial_snapshot = expected_order[:4]
+
+        snapshot_list = SnapshotList(initial_snapshot, 10, 300.0)
+        snapshot_list.new_snapshot(expected_order[2:])
 
         assert snapshot_list.list == expected_order
