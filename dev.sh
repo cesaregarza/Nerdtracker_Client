@@ -8,4 +8,4 @@ pipenv run flake8 .
 echo "Running mypy."
 pipenv run mypy .
 echo "Running pytest."
-pipenv run pytest . -vv
+pipenv run coverage run -m pytest . -vv

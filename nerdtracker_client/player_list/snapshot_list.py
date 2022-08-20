@@ -169,3 +169,17 @@ class SnapshotList:
         # TODO: Add logic to Listing to use all data from the listings.
         self.list[index] = new_listing
         return None
+    
+    def drop(self, index: Union[int, slice]) -> None:
+        """Drops one or more listings based on the index
+
+        Args:
+            index (Union[int, slice]): The index of the listing to drop.
+        """
+        if isinstance(index, int):
+            self.list.pop(index)
+            return None
+
+        if isinstance(index, slice):
+            self.list = self.list[:index.start] + self.list[index.stop:]
+            return None

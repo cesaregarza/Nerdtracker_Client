@@ -27,21 +27,7 @@ def test_identify_chunks_multiple_nones() -> None:
 def test_identify_chunks_all_nones() -> None:
     """Tests the identify_chunks function with all Nones"""
 
-    data = [
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-    ]
+    data = [None] * 10
     expected_output: list[int] = []
 
     assert identify_chunks(data) == expected_output
@@ -59,21 +45,7 @@ def test_identify_chunks_alternating_indices() -> None:
 def test_identify_chunks_alternating_indices_all_nones() -> None:
     """Tests the identify_chunks_alternating_indices function with all Nones"""
 
-    data = [
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-        None,
-    ]
+    data = [None] * 10
     expected_output: list[int] = [0]
 
     assert identify_chunks_alternating_indices(data) == expected_output
