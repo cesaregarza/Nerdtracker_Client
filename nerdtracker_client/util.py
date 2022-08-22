@@ -1,4 +1,4 @@
-from typing import TypeVar
+from typing import TypeVar, cast
 
 T = TypeVar("T")
 
@@ -56,4 +56,54 @@ def identify_chunks_alternating_indices(data: list[T]) -> list[int]:
         elif item is not None and none_chunk:
             out.append(index)
             none_chunk = False
+    return out
+
+
+def identify_missing_values(data: list[int | None]) -> list[int]:
+    """Given a list of monotonically increasing integers, identify the missing
+    values in the list. None is used as a placeholder. For example:
+    >>> data = [1, 2, 3, None, 5, 7]
+
+    will have None as a placeholder for 4, while 6 will be returned.
+    >>> identify_missing_values(data)
+    [6]
+
+    Args:
+        data (list[int]): The list of integers to identify missing values in.
+        None is used as a placeholder. Assume first value is not None.
+
+    Returns:
+        list[int]: The list of missing values in the list.
+    """
+
+    out: list[int] = []
+    smallest_value: int = cast(int, data[0])
+    # Find the largest value that is not None. Must be done this way since there
+    # probably are missing values, so the largest value is not necessarily the
+    # smallest value plus the length of the list.
+    largest_value: int = 0
+    ending_nones: int = 0
+    for value in data[::-1]:
+        if value is not None:
+            largest_value = value + ending_nones
+            break
+        else:
+            ending_nones += 1
+
+    # Impute the None values assuming it's one more than the previous value
+    new_data: list[int] = []
+    previous_value: int = smallest_value
+    for value in data:
+        if value is None:
+            new_value: int = previous_value + 1
+            new_data.append(new_value)
+            previous_value = new_value
+        else:
+            new_data.append(value)
+            previous_value = value
+
+    # Find the missing values
+    for value in range(smallest_value, largest_value + 1):
+        if value not in new_data:
+            out.append(value)
     return out

@@ -151,6 +151,8 @@ class SnapshotList:
         for index, listing in enumerate(new_snapshot):
             if listing in self.list:
                 overlap.append(index)
+            elif listing.is_empty:
+                overlap.append(-1)
             else:
                 overlap.append(None)
         return overlap
@@ -232,7 +234,7 @@ class SnapshotList:
         Args:
             new_list (list[Listing]): The new list to replace the old list with.
             start_index (int): The index to start replacing from.
-            stop_index (Optional[int], optional): The index to stop replacing 
+            stop_index (Optional[int], optional): The index to stop replacing
             at.
             If None, replaces to the end of the list. Defaults to None.
             step (int, optional): The step to replace by. Defaults to 1.
