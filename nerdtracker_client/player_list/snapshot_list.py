@@ -1,5 +1,5 @@
 import time
-from typing import Optional, TypeVar
+from typing import Optional, TypeVar, cast
 
 from nerdtracker_client.player_list.listing import EmptyListing, Listing
 from nerdtracker_client.util import identify_missing_values
@@ -30,8 +30,6 @@ class SnapshotList:
             max_list_age (float, optional): Maximum age in seconds before the
             list is considered stale. Defaults to 5 minutes.
         """
-        # Add a shallow copy of the initial snapshot to the list to avoid any
-        # issues with mutating the initial snapshot.
         self.list: list[T] = initial_snapshot
         self.last_update = time.time()
         self.max_list_length = max_list_length
@@ -125,8 +123,11 @@ class SnapshotList:
         # 1. Neither are found. Append the new snapshot to the end.
         if not first_listing_found and not last_listing_found:
             self.list += new_snapshot
-        # 2. Only the first is found. Add the new entries to the end.
-        elif first_listing_found and not last_listing_found:
+        # 2. Either case is found. Calculate overlaps, drops, and appends. Then,
+        # use whether first OR last is found to determine whether to append or
+        # prepend for new entries. The case where both are found is handled by
+        # the overlap and drop case in its entirety.
+        elif first_listing_found or last_listing_found:
             (
                 overlap_indices_old,
                 overlap_indices_new,
@@ -140,9 +141,12 @@ class SnapshotList:
                 and not (listing.is_empty and index == 0)
             ]
             # Go through the overlap indices and update them.
-            for new_index, old_index in enumerate(overlap_indices_old):
+            for new_index, old_index in zip(
+                overlap_indices_new, overlap_indices_old
+            ):
                 if old_index is None:
                     continue
+                new_index = cast(int, new_index)
                 self.__update_existing_listing(
                     new_snapshot[new_index], old_index
                 )
@@ -153,8 +157,7 @@ class SnapshotList:
             # Add the listings that are not considered dropped and are not
             # overlapping with the existing listings.
             new_listings = [new_snapshot[index] for index in new_indices]
-            self.add_list(new_listings, append=True)
-        # 3. Only the last is found. Add the new entries to the beginning.
+            self.add_list(new_listings, append=first_listing_found)
 
         return None
 
