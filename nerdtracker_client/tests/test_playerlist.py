@@ -70,6 +70,32 @@ class TestSnapshotList:
         assert snapshot_list.list == ten_listings_no_empty
         assert snapshot_list.last_update == DATE_FLOAT + 301
 
+    def test_drop(self, ten_listings_no_empty: list[Listing]) -> None:
+        """Tests the drop method of the snapshot list class"""
+
+        expected_order = ten_listings_no_empty[:8]
+        initial_snapshot = ten_listings_no_empty
+
+        snapshot_list = SnapshotList(initial_snapshot, 10, 300.0)
+        snapshot_list.drop(8)
+
+        assert snapshot_list.list == expected_order
+
+    def test_insert(
+        self,
+        ten_listings_no_empty: list[Listing],
+        nine_listings_removed_6: list[Listing],
+    ) -> None:
+        """Tests the insert method of the snapshot list class"""
+
+        expected_order = ten_listings_no_empty
+        initial_snapshot = nine_listings_removed_6
+
+        snapshot_list = SnapshotList(initial_snapshot, 10, 300.0)
+        snapshot_list.insert([Listing("7")], 6)
+
+        assert snapshot_list.list == expected_order
+
     def test_sequential_forward_no_drops_no_overlap_no_empty(
         self, ten_listings_no_empty: list[Listing]
     ) -> None:

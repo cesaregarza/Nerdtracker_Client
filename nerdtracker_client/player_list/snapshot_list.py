@@ -1,5 +1,5 @@
 import time
-from typing import TypeVar, Union
+from typing import Optional, TypeVar, Union
 
 from nerdtracker_client.player_list.listing import EmptyListing, Listing
 from nerdtracker_client.util import (
@@ -37,6 +37,17 @@ class SnapshotList:
         self.last_update = time.time()
         self.max_list_length = max_list_length
         self.max_list_age = max_list_age
+
+    def __repr__(self) -> str:
+        out_str = (
+            "SnapshotList(\n"
+            + f"\tNo. Listings: {len(self.list)},\n"
+            + f"\tLast Update: {self.last_update}, "
+            + f"\tMax Age: {self.max_list_age},\n"
+            + f"\tMax Length: {self.max_list_length},\n"
+            + ")"
+        )
+        return out_str
 
     @property
     def __is_list_stale(self) -> bool:
@@ -169,17 +180,67 @@ class SnapshotList:
         # TODO: Add logic to Listing to use all data from the listings.
         self.list[index] = new_listing
         return None
-    
-    def drop(self, index: Union[int, slice]) -> None:
+
+    def drop(
+        self,
+        start_index: int,
+        stop_index: Optional[int] = None,
+        step: int = 1,
+    ) -> None:
         """Drops one or more listings based on the index
 
         Args:
-            index (Union[int, slice]): The index of the listing to drop.
+            start_index (int): The index to start dropping from.
+            stop_index (Optional[int], optional): The index to stop dropping at.
+            If None, drops to the end of the list. Defaults to None.
+            step (int, optional): The step to drop by. Defaults to 1.
         """
-        if isinstance(index, int):
-            self.list.pop(index)
-            return None
+        if stop_index is None:
+            stop_index = len(self.list)
+        for _ in range(start_index, stop_index, step):
+            self.list.pop(start_index)
+        return None
 
-        if isinstance(index, slice):
-            self.list = self.list[:index.start] + self.list[index.stop:]
-            return None
+    def insert(
+        self,
+        new_list: list[T],
+        start_index: int,
+    ) -> None:
+        """Inserts a list of listings into the list.
+
+        Args:
+            new_list (list[Listing]): The new list to insert.
+            start_index (int): The index to start inserting at.
+        """
+        new_list = [
+            *self.list[:start_index],
+            *new_list,
+            *self.list[start_index:],
+        ]
+        self.list = new_list
+        return None
+
+    def replace(
+        self,
+        new_list: list[T],
+        start_index: int,
+        stop_index: Optional[int] = None,
+        step: int = 1,
+    ) -> None:
+        """Replaces one or more listings based on the index
+
+        Args:
+            new_list (list[Listing]): The new list to replace the old list with.
+            start_index (int): The index to start replacing from.
+            stop_index (Optional[int], optional): The index to stop replacing 
+            at.
+            If None, replaces to the end of the list. Defaults to None.
+            step (int, optional): The step to replace by. Defaults to 1.
+        """
+        if stop_index is None:
+            stop_index = len(self.list)
+
+        if len(new_list) != (stop_index - start_index):
+            # Some values were dropped.
+            self.drop(start_index, stop_index, step)
+            self.insert(new_list, start_index)
