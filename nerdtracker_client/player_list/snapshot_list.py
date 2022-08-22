@@ -2,9 +2,7 @@ import time
 from typing import Optional, TypeVar
 
 from nerdtracker_client.player_list.listing import EmptyListing, Listing
-from nerdtracker_client.util import (
-    identify_missing_values,
-)
+from nerdtracker_client.util import identify_missing_values
 
 T = TypeVar("T", bound=Listing)
 
@@ -139,9 +137,7 @@ class SnapshotList:
                 for index, listing in enumerate(new_snapshot)
                 if (index not in dropped_indices)
                 and (index not in overlap_indices_new)
-                and not (
-                    listing.is_empty and index == 0
-                )
+                and not (listing.is_empty and index == 0)
             ]
             # Go through the overlap indices and update them.
             for new_index, old_index in enumerate(overlap_indices_old):
