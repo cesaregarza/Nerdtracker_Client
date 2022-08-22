@@ -74,6 +74,15 @@ class Listing:
         minutes, seconds = divmod(seconds, 60)
         return f"{int(minutes):02d}m:{int(seconds):02d}s"
 
+    def update(self, other: "Listing") -> None:
+        if self.full_match:
+            return None
+
+        self.listing_id = other.listing_id
+        self.full_match = other.full_match
+        self.listing_time = other.listing_time
+        return None
+
     def update_time(self, new_time: float | None) -> None:
         """Updates the listing time to the current time"""
 
@@ -93,6 +102,14 @@ class Listing:
         self.listing_id = new_id
         self.full_match = True
         return None
+
+    def copy(self) -> "Listing":
+        """Returns a copy of the listing"""
+        if self.listing_id is None:
+            return EmptyListing()
+        new_listing = Listing(self.listing_id, self.full_match)
+        new_listing.listing_time = self.listing_time
+        return new_listing
 
     @property
     def is_empty(self) -> bool:

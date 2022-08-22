@@ -75,6 +75,8 @@ def identify_missing_values(data: list[int | None]) -> list[int]:
     Returns:
         list[int]: The list of missing values in the list.
     """
+    if not isinstance(data[0], int):
+        raise TypeError("First value in data must be an integer.")
 
     out: list[int] = []
     smallest_value: int = cast(int, data[0])

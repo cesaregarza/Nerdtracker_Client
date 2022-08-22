@@ -79,3 +79,12 @@ def test_missing_values_with_nones_and_drops() -> None:
     expected_output: list[int] = [5]
 
     assert identify_missing_values(data) == expected_output
+
+
+def test_missing_values_first_none() -> None:
+    """Tests the identify_missing_values function if there is a None at the
+    beginning"""
+
+    data = [None, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    with pytest.raises(TypeError):
+        identify_missing_values(data)

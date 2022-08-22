@@ -1,10 +1,9 @@
 import time
-from typing import Optional, TypeVar, Union
+from typing import Optional, TypeVar
 
 from nerdtracker_client.player_list.listing import EmptyListing, Listing
 from nerdtracker_client.util import (
-    identify_chunks,
-    identify_chunks_alternating_indices,
+    identify_missing_values,
 )
 
 T = TypeVar("T", bound=Listing)
@@ -33,6 +32,8 @@ class SnapshotList:
             max_list_age (float, optional): Maximum age in seconds before the
             list is considered stale. Defaults to 5 minutes.
         """
+        # Add a shallow copy of the initial snapshot to the list to avoid any
+        # issues with mutating the initial snapshot.
         self.list: list[T] = initial_snapshot
         self.last_update = time.time()
         self.max_list_length = max_list_length
@@ -128,14 +129,42 @@ class SnapshotList:
             self.list += new_snapshot
         # 2. Only the first is found. Add the new entries to the end.
         elif first_listing_found and not last_listing_found:
-            overlap_indices = self.__new_snapshot_overlap(new_snapshot)
-            index_of_first_none = overlap_indices.index(None)
-            self.list += new_snapshot[index_of_first_none:]
+            (
+                overlap_indices_old,
+                overlap_indices_new,
+            ) = self.__new_snapshot_overlap(new_snapshot)
+            dropped_indices = identify_missing_values(overlap_indices_old)
+            new_indices = [
+                index
+                for index, listing in enumerate(new_snapshot)
+                if (index not in dropped_indices)
+                and (index not in overlap_indices_new)
+                and not (
+                    listing.is_empty and index == 0
+                )
+            ]
+            # Go through the overlap indices and update them.
+            for new_index, old_index in enumerate(overlap_indices_old):
+                if old_index is None:
+                    continue
+                self.__update_existing_listing(
+                    new_snapshot[new_index], old_index
+                )
+
+            # Drop the listings that are considered dropped.
+            self.drop_list(dropped_indices)
+
+            # Add the listings that are not considered dropped and are not
+            # overlapping with the existing listings.
+            new_listings = [new_snapshot[index] for index in new_indices]
+            self.add_list(new_listings, append=True)
+        # 3. Only the last is found. Add the new entries to the beginning.
+
         return None
 
     def __new_snapshot_overlap(
         self, new_snapshot: list[T]
-    ) -> list[Union[int, None]]:
+    ) -> tuple[list[int | None], list[int | None]]:
         """Returns a list of indices of the new snapshot that overlap with the
         current list, or None if there is no overlap.
 
@@ -147,15 +176,19 @@ class SnapshotList:
             list[Union[int, None]]: The indices of the new snapshot that overlap
             with the current list or None if no overlap.
         """
-        overlap: list[Union[int, None]] = []
+        overlap_old_index: list[int | None] = []
+        overlap_new_index: list[int | None] = []
+        # Go through each listing. If it is in the new snapshot, add its index.
+        # If it is an empty listing, add None. Otherwise, do nothing.
         for index, listing in enumerate(new_snapshot):
-            if listing in self.list:
-                overlap.append(index)
-            elif listing.is_empty:
-                overlap.append(-1)
-            else:
-                overlap.append(None)
-        return overlap
+            if (listing in self.list) and (not listing.is_empty):
+                # Find the index of the listing
+                overlap_old_index.append(self.list.index(listing))
+                overlap_new_index.append(index)
+            elif listing.is_empty and (index > 0):
+                overlap_old_index.append(None)
+                overlap_new_index.append(None)
+        return (overlap_old_index, overlap_new_index)
 
     def __update_existing_listing(self, new_listing: T, index: int) -> None:
         """Updates an existing listing in the list.
@@ -180,7 +213,7 @@ class SnapshotList:
             return None
 
         # TODO: Add logic to Listing to use all data from the listings.
-        self.list[index] = new_listing
+        self.list[index].update(new_listing)
         return None
 
     def drop(
@@ -203,6 +236,19 @@ class SnapshotList:
             self.list.pop(start_index)
         return None
 
+    def drop_list(self, indices: list[int]) -> None:
+        """Drops a list of listings based on the indices
+
+        Args:
+            indices (list[int]): The indices to drop.
+        """
+        new_list = [
+            listing
+            for index, listing in enumerate(self.list)
+            if index not in indices
+        ]
+        self.list = new_list
+
     def insert(
         self,
         new_list: list[T],
@@ -220,6 +266,24 @@ class SnapshotList:
             *self.list[start_index:],
         ]
         self.list = new_list
+        return None
+
+    def add_list(
+        self,
+        new_list: list[T],
+        append: bool = True,
+    ) -> None:
+        """Adds a list of listings to the list.
+
+        Args:
+            new_list (list[Listing]): The new list to add.
+            append (bool, optional): Whether to append the new list or prepend
+            it.
+        """
+        if append:
+            self.list += new_list
+        else:
+            self.list = new_list + self.list
         return None
 
     def replace(

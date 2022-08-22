@@ -102,10 +102,11 @@ class TestSnapshotList:
         no drops"""
 
         expected_order = ten_listings_no_empty
-        initial_snapshot = expected_order[:4]
+        initial_snapshot = [listing.copy() for listing in expected_order[:4]]
+        new_snapshot = [listing.copy() for listing in expected_order[4:]]
 
         snapshot_list = SnapshotList(initial_snapshot, 10, 300.0)
-        snapshot_list.new_snapshot(expected_order[4:])
+        snapshot_list.new_snapshot(new_snapshot)
 
         assert snapshot_list.list == expected_order
 
@@ -116,10 +117,11 @@ class TestSnapshotList:
         no drops and an overlap"""
 
         expected_order = ten_listings_no_empty
-        initial_snapshot = expected_order[:4]
+        initial_snapshot = [listing.copy() for listing in expected_order[:4]]
+        new_snapshot = [listing.copy() for listing in expected_order[2:]]
 
         snapshot_list = SnapshotList(initial_snapshot, 10, 300.0)
-        snapshot_list.new_snapshot(expected_order[2:])
+        snapshot_list.new_snapshot(new_snapshot)
 
         assert snapshot_list.list == expected_order
 
@@ -130,10 +132,11 @@ class TestSnapshotList:
         drops"""
 
         expected_order = twelve_listings_two_empty
-        initial_snapshot = expected_order[:5]
+        initial_snapshot = [listing.copy() for listing in expected_order[:5]]
+        new_snapshot = [listing.copy() for listing in expected_order[5:]]
 
         snapshot_list = SnapshotList(initial_snapshot, 10, 300.0)
-        snapshot_list.new_snapshot(expected_order[5:])
+        snapshot_list.new_snapshot(new_snapshot)
 
         assert snapshot_list.list == expected_order
 
@@ -144,30 +147,34 @@ class TestSnapshotList:
         drops and an overlap"""
 
         expected_order = twelve_listings_two_empty
-        initial_snapshot = expected_order[:7]
+        initial_snapshot = [listing.copy() for listing in expected_order[:7]]
+        new_snapshot = [listing.copy() for listing in expected_order[5:]]
 
         snapshot_list = SnapshotList(initial_snapshot, 10, 300.0)
-        snapshot_list.new_snapshot(expected_order[5:])
+        snapshot_list.new_snapshot(new_snapshot)
 
         assert snapshot_list.list == expected_order
 
-    # def test_sequential_forward_w_drops_w_overlap_no_empty(
-    #     self,
-    #     ten_listings_no_empty: list[Listing],
-    #     nine_listings_removed_6: list[Listing],
-    # ) -> None:
-    #     """Tests the sequential_forward method of the snapshot list class with
-    #     drops"""
+    # @pytest.mark.xfail(reason="Not yet implemented")
+    def test_sequential_forward_w_drops_w_overlap_no_empty(
+        self,
+        ten_listings_no_empty: list[Listing],
+        nine_listings_removed_6: list[Listing],
+    ) -> None:
+        """Tests the sequential_forward method of the snapshot list class with
+        drops"""
 
-    #     expected_order = nine_listings_removed_6
-    #     initial_snapshot = ten_listings_no_empty[:8]
+        expected_order = nine_listings_removed_6
+        initial_snapshot = [
+            listing.copy() for listing in ten_listings_no_empty[:8]
+        ]
 
-    #     snapshot_list = SnapshotList(initial_snapshot, 10, 300.0)
-    #     snapshot_without_index_4 = [
-    #         item
-    #         for index, item in enumerate(ten_listings_no_empty)
-    #         if index != 6 and index >= 4
-    #     ]
-    #     snapshot_list.new_snapshot(snapshot_without_index_4)
+        snapshot_list = SnapshotList(initial_snapshot, 10, 300.0)
+        snapshot_without_index_4 = [
+            listing.copy()
+            for index, listing in enumerate(ten_listings_no_empty)
+            if index != 6 and index >= 4
+        ]
+        snapshot_list.new_snapshot(snapshot_without_index_4)
 
-    #     assert snapshot_list.list == expected_order
+        assert snapshot_list.list == expected_order
