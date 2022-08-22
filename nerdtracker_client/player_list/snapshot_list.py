@@ -39,7 +39,7 @@ class SnapshotList:
         out_str = (
             "SnapshotList(\n"
             + f"\tNo. Listings: {len(self.list)},\n"
-            + f"\tLast Update: {self.last_update}, "
+            + f"\tLast Update: {self.last_update},\n"
             + f"\tMax Age: {self.max_list_age},\n"
             + f"\tMax Length: {self.max_list_length},\n"
             + ")"

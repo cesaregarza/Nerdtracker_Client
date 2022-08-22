@@ -108,6 +108,17 @@ class TestListing:
         assert listing.listing_id == "5"
         assert listing.full_match is True
 
+    def test_update_full_match_attempt_update_again(self) -> None:
+        """Tests the update_full_match method on a listing with an already
+        full match"""
+        listing = Listing("5", True)
+        assert listing.full_match is True
+
+        new_listing = Listing("6")
+        listing.update(new_listing)
+        assert listing.listing_id == "5"
+        assert listing.full_match is True
+
 
 class TestEmptyListing:
     def test_init(self) -> None:

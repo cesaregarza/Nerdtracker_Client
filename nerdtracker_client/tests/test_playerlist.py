@@ -21,6 +21,22 @@ class TestSnapshotList:
         assert snapshot_list.max_list_length == 10
         assert snapshot_list.max_list_age == 300
 
+    @freeze_time(DATE_STRING)
+    def test_repr(self) -> None:
+        """Tests the repr method of the snapshot list class"""
+
+        snapshot_list = SnapshotList([], 10, 300.0)
+
+        expected = (
+            "SnapshotList(\n"
+            + "\tNo. Listings: 0,\n"
+            + f"\tLast Update: {DATE_FLOAT},\n"
+            + "\tMax Age: 300.0,\n"
+            + "\tMax Length: 10,\n"
+            + ")"
+        )
+        assert repr(snapshot_list) == expected
+
     def test_in(self) -> None:
         """Tests the __contains__ method of the snapshot list class"""
 
