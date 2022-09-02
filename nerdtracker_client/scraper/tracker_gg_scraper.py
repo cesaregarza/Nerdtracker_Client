@@ -1,6 +1,7 @@
 import urllib.parse
 from typing import Generator
 
+import cloudscraper
 from bs4 import BeautifulSoup
 from bs4.element import ResultSet, Tag
 from cloudscraper import CloudScraper
@@ -8,21 +9,37 @@ from cloudscraper import CloudScraper
 import nerdtracker_client.constants.stats as ntc_stats
 
 
+def create_scraper() -> CloudScraper:
+    """Create a CloudScraper object
+
+    Returns:
+        CloudScraper: CloudScraper object
+    """
+    scraper = cloudscraper.create_scraper()
+    return scraper
+
+
 def retrieve_page_from_tracker(
-    scraper: CloudScraper, activision_user_string: str
+    scraper: CloudScraper,
+    activision_user_string: str,
+    cold_war_flag: bool = False,
 ) -> BeautifulSoup:
     """Retrieve page from tracker.gg, returning a BeautifulSoup object
 
     Args:
         scraper (CloudScraper): CloudScraper object
         activision_user_string (str): Activision user string
+        cold_war_flag (bool, optional): Flag to use cold war tracker.gg page
+        instead of modern warfare. Defaults to False.
 
     Returns:
         BeautifulSoup: BeautifulSoup object
     """
     # Retrieve page from tracker.gg using the activision user ID
     activision_user_string = urllib.parse.quote(activision_user_string)
-    base_url = "https://cod.tracker.gg/modern-warfare/profile/atvi/"
+    mw_url = "https://cod.tracker.gg/modern-warfare/profile/atvi/"
+    cw_url = "https://cod.tracker.gg/cold-war/profile/atvi/"
+    base_url = cw_url if cold_war_flag else mw_url
     tracker_url = base_url + activision_user_string + "/mp"
     request = scraper.get(tracker_url)
 
