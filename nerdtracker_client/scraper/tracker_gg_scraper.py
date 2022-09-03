@@ -46,7 +46,7 @@ def retrieve_page_from_tracker(
     mw_url = "modern-warfare"
     cw_url = "cold-war"
     selected_url = mw_url if not cold_war_flag else cw_url
-    base_url = f"https://cod.tracker.gg/{selected_url}/profile/atvi/"
+    base_url = "https://cod.tracker.gg/" + selected_url + "/profile/atvi/"
     tracker_url = base_url + activision_user_string + "/mp"
     request = scraper.get(tracker_url)
 

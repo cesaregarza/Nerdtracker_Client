@@ -4,6 +4,7 @@ extend-ignore = E203
 per-file-ignores = 
     __init__.py:F401
     test_*.py:DAR101, DAR201
+    nerdtracker_client/tests/fixtures/*:DAR101, DAR201
 
 [darglint]
 docstring_style = google
