@@ -48,6 +48,8 @@ class TestParseTrackerHtml:
     def test_parse_tracker_html(self, html_page) -> None:
         soup = BeautifulSoup(html_page, "html.parser")
         stats = parse_tracker_html(soup)
+        # Until there is a better way to type: ignore this, I will leave it
+        # TODO: Find a better way to type: ignore this
         assert stats[ntc_stats.KD_RATIO] == "1.79"  # type: ignore
         assert stats[ntc_stats.WIN_PERC] == "52.9%"  # type: ignore
         assert stats[ntc_stats.SCORE_PER_MIN] == "742.72"  # type: ignore
