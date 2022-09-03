@@ -3,3 +3,4 @@
 
 # Ignore HTML files
 *.html linguist-detectable=false
+*.ipynb linguist-detectable=false
