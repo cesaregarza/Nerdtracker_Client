@@ -89,14 +89,8 @@ def parse_tracker_html(soup: BeautifulSoup) -> ntc_stats.StatColumns:
     # If the page is found, fill the dictionary with the stats
     for stat_soup in soup_find_all():
         name, value = extract_stat(stat_soup)
-        temp_stats_dict[name] = value
-
-    # Remove stats not in ntc_stats.STAT_COLUMNS
-    temp_stats_dict = {
-        key: value
-        for key, value in temp_stats_dict.items()
-        if key in ntc_stats.STAT_COLUMNS
-    }
+        if (name in ntc_stats.STAT_COLUMNS) and (name not in temp_stats_dict):
+            temp_stats_dict[name] = value
 
     # The below has not been resolved in mypy. See:
     # https://github.com/python/mypy/issues/8890
