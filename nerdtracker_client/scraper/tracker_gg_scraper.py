@@ -24,22 +24,29 @@ def retrieve_page_from_tracker(
     activision_user_string: str,
     cold_war_flag: bool = False,
 ) -> BeautifulSoup:
-    """Retrieve page from tracker.gg, returning a BeautifulSoup object
+    """Retrieve page from tracker.gg using the activision user ID
+
+    Given a scraper object and an activision user ID, retrieve the page from
+    tracker.gg and return a BeautifulSoup object
 
     Args:
-        scraper (CloudScraper): CloudScraper object
+        scraper (CloudScraper): CloudScraper object. Could theoretically be
+            any object that has a get method, but CloudScraper is the only
+            object that so far works with tracker.gg
         activision_user_string (str): Activision user string
-        cold_war_flag (bool, optional): Flag to use cold war tracker.gg page
-        instead of modern warfare. Defaults to False.
+        cold_war_flag (bool): Flag to indicate whether to retrieve stats from
+            Cold War or Modern Warfare. Defaults to False, which retrieves
+            stats from Modern Warfare. True is mostly for testing purposes.
 
     Returns:
         BeautifulSoup: BeautifulSoup object
     """
     # Retrieve page from tracker.gg using the activision user ID
     activision_user_string = urllib.parse.quote(activision_user_string)
-    mw_url = "https://cod.tracker.gg/modern-warfare/profile/atvi/"
-    cw_url = "https://cod.tracker.gg/cold-war/profile/atvi/"
-    base_url = cw_url if cold_war_flag else mw_url
+    mw_url = "modern-warfare"
+    cw_url = "cold-war"
+    selected_url = mw_url if not cold_war_flag else cw_url
+    base_url = f"https://cod.tracker.gg/{selected_url}/profile/atvi/"
     tracker_url = base_url + activision_user_string + "/mp"
     request = scraper.get(tracker_url)
 

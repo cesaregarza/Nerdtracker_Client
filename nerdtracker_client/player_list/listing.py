@@ -52,7 +52,7 @@ class Listing:
         """Returns whether the two listings are equal through fuzzywuzzy
 
         Arguments:
-            other (Listing): The other listing to compare to
+            other (object): The other listing to compare to
 
         Returns:
             bool: Whether the two listings are equal...ish
@@ -75,19 +75,33 @@ class Listing:
         return f"{int(minutes):02d}m:{int(seconds):02d}s"
 
     def update(self, other: "Listing") -> None:
+        """Updates the listing with another listing
+
+        Given another listing, transforms the current listing into the other
+        listing. If the current listing is a full match, then this function
+        does nothing.
+
+        Args:
+            other (Listing): The other listing
+        """
         if self.full_match:
-            return None
+            return
 
         self.listing_id = other.listing_id
         self.full_match = other.full_match
         self.listing_time = other.listing_time
-        return None
 
     def update_time(self, new_time: float | None) -> None:
-        """Updates the listing time to the current time"""
+        """Updates the listing time.
+
+        Updates the listing time to the new time if the new time is provided.
+
+        Args:
+            new_time (float | None): The new time to update to, or None to use
+                the current time
+        """
 
         self.listing_time = time.time() if new_time is None else new_time
-        return None
 
     def update_id_full_match(self, new_id: str | int) -> None:
         """Updates the listing id if a full match has been found
@@ -97,14 +111,17 @@ class Listing:
         """
         # If full match is already true, don't update
         if self.full_match:
-            return None
+            return
 
         self.listing_id = new_id
         self.full_match = True
-        return None
 
     def copy(self) -> "Listing":
-        """Returns a copy of the listing"""
+        """Returns a copy of the listing
+
+        Returns:
+            Listing: A copy of the listing
+        """
         if self.listing_id is None:
             return EmptyListing()
         new_listing = Listing(self.listing_id, self.full_match)
@@ -113,7 +130,11 @@ class Listing:
 
     @property
     def is_empty(self) -> bool:
-        """Returns whether the listing is empty or not"""
+        """Whether the listing is empty or not
+
+        Returns:
+            bool: Whether the listing is empty or not
+        """
 
         return self.listing_id is None
 
@@ -150,10 +171,13 @@ class EmptyListing(Listing):
         return ""
 
     def __eq__(self, other: object) -> bool:
-        """Returns whether the two listings are equal through fuzzywuzzy
+        """Returns whether the two listings are equal.
+
+        Since this is an EmptyListing, it will always return True if the other
+        object is also an EmptyListing, and False otherwise.
 
         Arguments:
-            other (Listing): The other listing to compare to
+            other (object): The other listing to compare to
 
         Returns:
             bool: Whether the two listings are equal...ish
@@ -170,14 +194,21 @@ class EmptyListing(Listing):
         return ""
 
     def update_time(self, new_time: float | None) -> None:
-        """Updates the listing time to the current time"""
+        """Updates the listing time.
 
-        return None
+        Updates the listing time to the new time if the new time is provided.
+
+        Args:
+            new_time (float | None): For EmptyListing, this does nothing. This
+                is just here to override the parent class method.
+        """
+        pass
 
     def update_id_full_match(self, new_id: str | int) -> None:
         """Updates the listing id if a full match has been found
 
         Args:
-            new_id (str | int): The new listing id to update to
+            new_id (str | int): For EmptyListing, this does nothing. This is
+                just here to override the parent class method.
         """
-        return None
+        pass

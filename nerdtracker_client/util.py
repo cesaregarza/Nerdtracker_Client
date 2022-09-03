@@ -60,8 +60,10 @@ def identify_chunks_alternating_indices(data: list[T]) -> list[int]:
 
 
 def identify_missing_values(data: list[int | None]) -> list[int]:
-    """Given a list of monotonically increasing integers, identify the missing
-    values in the list. None is used as a placeholder. For example:
+    """Identifies and returns the missing values in the list.
+
+    Given a monotonically increasing list, where None is used as a placeholder,
+    identify and return the missing values in the list. For example:
     >>> data = [1, 2, 3, None, 5, 7]
 
     will have None as a placeholder for 4, while 6 will be returned.
@@ -69,11 +71,15 @@ def identify_missing_values(data: list[int | None]) -> list[int]:
     [6]
 
     Args:
-        data (list[int]): The list of integers to identify missing values in.
-        None is used as a placeholder. Assume first value is not None.
+        data (list[int  |  None]): The list of integers to identify missing
+            values in. None is used as a placeholder, assumes the first value is
+            not None.
+
+    Raises:
+        TypeError: If the first value in the list is None.
 
     Returns:
-        list[int]: The list of missing values in the list.
+        list[int]: The list of missing values.
     """
     if not isinstance(data[0], int):
         raise TypeError("First value in data must be an integer.")

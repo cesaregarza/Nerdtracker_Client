@@ -20,15 +20,15 @@ class SnapshotList:
         max_list_length: int = 12,
         max_list_age: float = 5.0 * 60.0,
     ) -> None:
-        """Constructor for the Listing class.
+        """Initializes the SnapshotList class.
 
         Args:
-            initial_snapshot (list[Listing]): The initial snapshot to use to
-            initialize the list.
-            max_list_length (int, optional): Maximum length the list will
-            attempt to keep. Defaults to 12.
-            max_list_age (float, optional): Maximum age in seconds before the
-            list is considered stale. Defaults to 5 minutes.
+            initial_snapshot (list[T]): The initial snapshot to use to create
+                the list.
+            max_list_length (int): Maximum length to attempt to keep. Defaults
+                to 12.
+            max_list_age (float): Maximum age, in seconds, before the
+                SnapshotList is considered stale. Defaults to 300 seconds.
         """
         self.list: list[T] = initial_snapshot
         self.last_update = time.time()
@@ -48,28 +48,39 @@ class SnapshotList:
 
     @property
     def __is_list_stale(self) -> bool:
-        """Returns whether the list is stale or not"""
+        """Whether the list is stale
+
+        Checks whether the list is stale based on the last update time and the
+        maximum age of the list.
+
+        Returns:
+            bool: Whether the list is stale
+        """
         return (time.time() - self.last_update) > self.max_list_age
 
     @staticmethod
     def from_list_of_strings(
-        initial_snapshot: list,
+        initial_snapshot: list[str | None],
         max_list_length: int = 12,
         max_list_age: float = 5.0 * 60.0,
     ) -> "SnapshotList":
-        """Creates a SnapshotList from a list of strings. If the string fed is
-        empty or None, an empty Listing is created. Otherwise, the string is
-        used to create a new Listing.
+        """Creates a SnapshotList from a list of strings.
+
+        Given a list of strings, creates a SnapshotList with the strings as the
+        listings. If the string is empty or None, it will be converted to an
+        EmptyListing. Otherwise, the string will be used to create a new
+        Listing.
 
         Args:
-            initial_snapshot (list): The initial snapshot to use to initialize
-            max_list_length (int, optional): Max length the list will attempt to
-            keep. Defaults to 12.
-            max_list_age (float, optional): Maximum age in seconds before the
-            list is considered stale. Defaults to 5 minutes.
+            initial_snapshot (list [str | None]): The initial snapshot to use to
+                create the SnapshotList.
+            max_list_length (int): Max length the list will attempt to keep.
+                Defaults to 12.
+            max_list_age (float): Maximum age, in seconds, before the
+                SnapshotList is considered stale. Defaults to 300 seconds.
 
         Returns:
-            SnapshotList: _description_
+            SnapshotList: The SnapshotList created from the list of strings.
         """
 
         fed_snapshot = []
@@ -82,21 +93,35 @@ class SnapshotList:
         return SnapshotList(fed_snapshot, max_list_length, max_list_age)
 
     def __contains__(self, listing: T) -> bool:
-        """Returns whether the listing is in the list or not"""
+        """Checks whether the fed listing is in the SnapshotList.
+
+        Args:
+            listing (T): The listing to check, where T is a subclass of Listing.
+
+        Returns:
+            bool: Whether the listing is in the SnapshotList.
+        """
         return listing in self.list
 
     def new_snapshot(self, new_snapshot: list[T]) -> None:
-        """Updates the list with a new snapshot.
+        """Updates the list based on a new snapshot.
+
+        Given a new snapshot of Listings, updates the list with a few
+        assumptions. First, if there is no overlap between the new snapshot and
+        the current list, the list will be appended with the new snapshot. If
+        there is an overlap, then depending on where the overlap is, the shared
+        listings will be updated and the rest will be either appended or
+        prepended. Missing listings from the current list will be dropped. If
+        the list is stale, it will be replaced with the new snapshot.
 
         Args:
-            new_snapshot (list[Listing]): The new snapshot to use to update the
-            list.
+            new_snapshot (list[T]): The new snapshot to use to update the list.
         """
         # If the list is stale, update it.
         if self.__is_list_stale:
             self.list = new_snapshot
             self.last_update = time.time()
-            return None
+            return
 
         # Find the first and last listing that are not empty
         first_listing: Listing | None = None
@@ -159,21 +184,25 @@ class SnapshotList:
             new_listings = [new_snapshot[index] for index in new_indices]
             self.add_list(new_listings, append=first_listing_found)
 
-        return None
-
     def __new_snapshot_overlap(
         self, new_snapshot: list[T]
     ) -> tuple[list[int | None], list[int | None]]:
-        """Returns a list of indices of the new snapshot that overlap with the
-        current list, or None if there is no overlap.
+        """Calculates the overlap between the new snapshot and the current list.
+
+        Given a new snapshot, calculates the overlap between the new snapshot
+        and the current list. Returns two lists, one with the indices of the
+        overlap in the current list and one with the indices of the overlap in
+        the new snapshot.
 
         Args:
-            new_snapshot (list[Listing]): The new snapshot to use to update the
-            list.
+            new_snapshot (list[T]): A list of Listings to compare to the current
+                list.
 
         Returns:
-            list[Union[int, None]]: The indices of the new snapshot that overlap
-            with the current list or None if no overlap.
+            tuple[list[int | None], list[int | None]]: A tuple of two lists,
+                one with the indices of the overlap in the current list and one
+                with the indices of the overlap in the new snapshot. If there is
+                no overlap, the index will be None.
         """
         overlap_old_index: list[int | None] = []
         overlap_new_index: list[int | None] = []
@@ -190,30 +219,34 @@ class SnapshotList:
         return (overlap_old_index, overlap_new_index)
 
     def __update_existing_listing(self, new_listing: T, index: int) -> None:
-        """Updates an existing listing in the list.
+        """Updates an existing listing with a new listing.
+
+        Given a new listing and an index, updates the existing listing at that
+        index with the new listing.
 
         Args:
-            new_listing (Listing): The new listing to use to update the list.
-            index (int): The index of the listing to update.
+            new_listing (T): The new listing to use to update the existing
+                listing at the given index.
+            index (int): The index of the existing listing to update.
         """
         old_listing = self.list[index]
         if isinstance(old_listing, EmptyListing):
             self.list[index] = new_listing
-            return None
+            return
 
         if isinstance(new_listing, EmptyListing):
-            return None
+            return
 
         if old_listing.full_match:
-            return None
+            return
 
         if new_listing.full_match:
             self.list[index] = new_listing
-            return None
+            return
 
         # TODO: Add logic to Listing to use all data from the listings.
         self.list[index].update(new_listing)
-        return None
+        return
 
     def drop(
         self,
@@ -221,25 +254,36 @@ class SnapshotList:
         stop_index: Optional[int] = None,
         step: int = 1,
     ) -> None:
-        """Drops one or more listings based on the index
+        """Drops one or more listings based on the index.
+
+        Given a start index, a stop index, and a step, drops the listings
+        between the start and stop index, stepping by the step. If the stop
+        index is not given, drops the listing at the start index.
 
         Args:
-            start_index (int): The index to start dropping from.
-            stop_index (Optional[int], optional): The index to stop dropping at.
-            If None, drops to the end of the list. Defaults to None.
-            step (int, optional): The step to drop by. Defaults to 1.
+            start_index (int): The index of the listing to drop, or start
+                dropping from.
+            stop_index (int, optional): The index to stop dropping at. If None,
+                only the listing at start_index will be dropped. Defaults to
+                None.
+            step (int): The step size to use when dropping listings. Defaults to
+                1.
         """
         if stop_index is None:
             stop_index = len(self.list)
         for _ in range(start_index, stop_index, step):
             self.list.pop(start_index)
-        return None
+        return
 
     def drop_list(self, indices: list[int]) -> None:
-        """Drops a list of listings based on the indices
+        """Drops one or more listings based on the index.
+
+        Given a list of indices, drops the listings at those indices. In
+        practice, this overwrites the existing list with a shallow copy with the
+        dropped listings removed.
 
         Args:
-            indices (list[int]): The indices to drop.
+            indices (list[int]): A list of indices to drop.
         """
         new_list = [
             listing
@@ -253,11 +297,16 @@ class SnapshotList:
         new_list: list[T],
         start_index: int,
     ) -> None:
-        """Inserts a list of listings into the list.
+        """Inserts a list of listings into the current list.
+
+        Given a list of listings and a start index, inserts the new listings
+        into the current list at the start index. Does not support inserting
+        listings into specific indices, must insert at the start index.
 
         Args:
-            new_list (list[Listing]): The new list to insert.
-            start_index (int): The index to start inserting at.
+            new_list (list[T]): A list of listings to insert into the current
+                list.
+            start_index (int): The index to insert the new listings at.
         """
         new_list = [
             *self.list[:start_index],
@@ -265,7 +314,6 @@ class SnapshotList:
             *self.list[start_index:],
         ]
         self.list = new_list
-        return None
 
     def add_list(
         self,
@@ -276,14 +324,12 @@ class SnapshotList:
 
         Args:
             new_list (list[Listing]): The new list to add.
-            append (bool, optional): Whether to append the new list or prepend
-            it.
+            append (bool): Whether to append the new list or prepend it.
         """
         if append:
             self.list += new_list
         else:
             self.list = new_list + self.list
-        return None
 
     def replace(
         self,
@@ -292,15 +338,21 @@ class SnapshotList:
         stop_index: Optional[int] = None,
         step: int = 1,
     ) -> None:
-        """Replaces one or more listings based on the index
+        """Replaces one or more listings with a new list of listings.
+
+        Given a new list of listings, a start index, a stop index, and a step,
+        replaces the listings between the start and stop index, stepping by the
+        step, with the new listings. If the stop index is not given, drops all
+        listings after the start index and appends the new listings.
 
         Args:
-            new_list (list[Listing]): The new list to replace the old list with.
-            start_index (int): The index to start replacing from.
-            stop_index (Optional[int], optional): The index to stop replacing
-            at.
-            If None, replaces to the end of the list. Defaults to None.
-            step (int, optional): The step to replace by. Defaults to 1.
+            new_list (list[T]): The new list of listings to replace the existing
+                listings with.
+            start_index (int): The index of the listing to start replacing from.
+            stop_index (int, optional): The index to stop replacing at. If None,
+                all listings after start_index will be dropped and the new
+                listings will be appended. Defaults to None.
+            step (int): The step size to use when replacing listings.
         """
         if stop_index is None:
             stop_index = len(self.list)
