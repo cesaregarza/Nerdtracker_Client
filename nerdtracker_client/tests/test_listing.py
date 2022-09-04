@@ -29,6 +29,20 @@ class TestListing:
 
         assert repr(listing) == expected_string
 
+    @freeze_time(DATE_STRING)
+    def test_repr_with_stats(self, listing_with_stats: Listing) -> None:
+        """Tests the __repr__ method of the listing class with stats"""
+
+        expected_string = (
+            "Listing(5, "
+            + "KDR: 1.00, "
+            + f"Threshold: {SIMILARITY_THRESHOLD}, "
+            + "Time: 00m:00s"
+            + ")"
+        )
+
+        assert repr(listing_with_stats) == expected_string
+
     def test_str(self, listing: Listing) -> None:
         """Tests the __str__ method of the listing class"""
 
@@ -60,13 +74,13 @@ class TestListing:
 
         assert listing.listing_time == DATE_FLOAT + 1
 
-    @freeze_time(DATE_STRING)
     def test_update_time_with_none(self, listing: Listing) -> None:
         """Tests the update_time method of the listing class with None"""
 
-        listing.update_time(None)
-
-        assert listing.listing_time == DATE_FLOAT
+        with freeze_time(DATE_STRING) as frozen_datetime:
+            frozen_datetime.tick()
+            listing.update_time(None)
+            assert listing.listing_time == DATE_FLOAT + 1
 
     def test_is_empty_property(self, listing: Listing) -> None:
         """Tests the is_empty property of the listing class"""
