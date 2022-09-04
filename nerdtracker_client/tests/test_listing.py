@@ -28,6 +28,7 @@ class TestListing:
 
         expected_string = (
             "Listing(5, "
+            + "KDR: N/A, "
             + f"Threshold: {SIMILARITY_THRESHOLD}, "
             + "Time: 00m:00s"
             + ")"

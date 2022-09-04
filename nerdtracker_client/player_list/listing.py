@@ -1,6 +1,9 @@
 import time
+from typing import Optional
 
 from fuzzywuzzy import fuzz
+
+import nerdtracker_client.constants.stats as ntc_stats
 
 # Constants
 SIMILARITY_THRESHOLD = 80
@@ -10,16 +13,23 @@ class Listing:
     """Listing class is a class that represents a single listing on the
     SnapshotList class"""
 
-    def __init__(self, listing_id: str | int, full_match: bool = False) -> None:
+    def __init__(
+        self,
+        listing_id: str | int,
+        full_match: bool = False,
+        stats: Optional[ntc_stats.StatColumns] = None,
+    ) -> None:
         """Constructor for the Listing class
 
         Arguments:
             listing_id (str | int): The identifier for the listing
             full_match (bool): Whether the listing id is a full match or not
+            stats (Optional[ntc_stats.StatColumns]): The stats for the listing.
         """
 
         self.listing_id: str | int | None = listing_id
         self.full_match = full_match
+        self.stats = stats
         self.listing_time = time.time()
 
     def __repr__(self) -> str:
@@ -30,13 +40,20 @@ class Listing:
             str: The string representation of the listing
         """
 
-        return (
+        if self.stats:
+            kdr_string = self.stats[ntc_stats.KD_RATIO]  # type: ignore
+        else:
+            kdr_string = "N/A"
+
+        out = (
             "Listing("
             + f"{self.listing_id}, "
+            + f"KDR: {kdr_string}, "
             + f"Threshold: {SIMILARITY_THRESHOLD}, "
             + f"Time: {self.time_since_listing()}"
             + ")"
         )
+        return out
 
     def __str__(self) -> str:
         """When stringified, returns the listing id. Purposefully different from

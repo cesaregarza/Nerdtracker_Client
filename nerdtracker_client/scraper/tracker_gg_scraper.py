@@ -107,6 +107,7 @@ def parse_tracker_html(soup: BeautifulSoup) -> ntc_stats.StatColumns:
 
     return stat_dict
 
+
 def retrieve_stats(activision_user_string: str) -> ntc_stats.StatColumns:
     """Retrieve stats from tracker.gg using the activision user ID
 
