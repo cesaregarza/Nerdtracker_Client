@@ -40,7 +40,7 @@ class Listing:
             str: The string representation of the listing
         """
 
-        if self.stats:
+        if self.has_stats:
             kdr_string = self.stats[ntc_stats.KD_RATIO]  # type: ignore
         else:
             kdr_string = "N/A"
@@ -105,6 +105,7 @@ class Listing:
             return
 
         self.listing_id = other.listing_id
+        self.stats = other.stats
         self.full_match = other.full_match
         self.listing_time = other.listing_time
 
@@ -155,6 +156,16 @@ class Listing:
 
         return self.listing_id is None
 
+    @property
+    def has_stats(self) -> bool:
+        """Whether the listing has stats or not
+
+        Returns:
+            bool: Whether the listing has stats or not
+        """
+
+        return self.stats is not None
+
 
 class EmptyListing(Listing):
     """EmptyListing class is necessary in case the OCR unit fails and there is
@@ -164,6 +175,7 @@ class EmptyListing(Listing):
         """Constructor for the EmptyListing class"""
 
         self.listing_id = None
+        self.stats = None
         self.full_match = False
         self.listing_time = 0.0
 
