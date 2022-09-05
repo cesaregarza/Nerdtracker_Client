@@ -1,12 +1,9 @@
 from datetime import timedelta
 
-import pytest
 from freezegun import freeze_time
 
 from nerdtracker_client.player_list import EmptyListing, Listing, SnapshotList
-
-DATE_STRING = "2022-07-21 12:00:01"
-DATE_FLOAT = 1658404801.0
+from nerdtracker_client.tests.constants import DATE_FLOAT, DATE_STRING
 
 
 class TestSnapshotList:

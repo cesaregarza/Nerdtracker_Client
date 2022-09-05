@@ -117,7 +117,9 @@ def parse_tracker_html(soup: BeautifulSoup) -> ntc_stats.StatColumns:
     return stat_dict
 
 
-def retrieve_stats(activision_user_string: str) -> ntc_stats.StatColumns:
+def retrieve_stats(
+    activision_user_string: str, cold_war_flag: bool = False
+) -> ntc_stats.StatColumns:
     """Retrieve stats from tracker.gg using the activision user ID
 
     Given an activision user ID, retrieve the stats from tracker.gg and return
@@ -125,12 +127,17 @@ def retrieve_stats(activision_user_string: str) -> ntc_stats.StatColumns:
 
     Args:
         activision_user_string (str): Activision user string
+        cold_war_flag (bool): Flag to indicate whether to retrieve stats from
+            Cold War or Modern Warfare. Defaults to False, which retrieves
+            stats from Modern Warfare. True is mostly for testing purposes.
 
     Returns:
         dict: Dictionary of stats
     """
     scraper = create_scraper()
-    soup = retrieve_page_from_tracker(scraper, activision_user_string)
+    soup = retrieve_page_from_tracker(
+        scraper, activision_user_string, cold_war_flag=cold_war_flag
+    )
     stat_dict = parse_tracker_html(soup)
     return stat_dict
 

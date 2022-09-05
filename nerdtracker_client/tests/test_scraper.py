@@ -62,7 +62,7 @@ class TestRetrieve:
         valid_activision_user_string: str,
         joy_stats: ntc_stats.StatColumns,
     ) -> None:
-        stats = retrieve_stats(valid_activision_user_string)
+        stats = retrieve_stats(valid_activision_user_string, cold_war_flag=True)
         if stats == {}:
             pytest.skip("Cloudflare challenge detected, skipping test")
         assert stats == joy_stats

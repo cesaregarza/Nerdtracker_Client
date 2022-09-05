@@ -3,7 +3,7 @@ from freezegun import freeze_time
 
 import nerdtracker_client.constants.stats as ntc_stats
 from nerdtracker_client.player_list import EmptyListing, Listing
-from nerdtracker_client.tests.constants import DATE_FLOAT, DATE_STRING
+from nerdtracker_client.tests.constants import DATE_STRING
 
 
 @pytest.fixture
