@@ -12,6 +12,8 @@ from nerdtracker_client.scraper import (
 
 
 class TestScraper:
+    @pytest.mark.slow
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_retrieve_page_from_tracker(
         self, valid_activision_user_string
     ) -> None:
@@ -23,6 +25,8 @@ class TestScraper:
         failed_string = "Enable JavaScript and cookies to continue"
         assert failed_string not in soup.text
 
+    @pytest.mark.slow
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_retrieve_invalid_page_from_tracker(
         self, invalid_activision_user_string
     ) -> None:
@@ -34,6 +38,8 @@ class TestScraper:
         failed_string = "stats not found"
         assert failed_string in soup.text
 
+    @pytest.mark.slow
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_retrieve_empty_page_from_tracker(
         self, empty_activision_user_string
     ) -> None:
@@ -56,6 +62,8 @@ class TestParseTrackerHtml:
 
 
 class TestRetrieve:
+    @pytest.mark.slow
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_retrieve_stats(
         self,
         valid_activision_user_string: str,
@@ -66,6 +74,8 @@ class TestRetrieve:
             pytest.skip("Cloudflare challenge detected, skipping test")
         assert stats == joy_stats
 
+    @pytest.mark.slow
+    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
     def test_retrieve_stats_multiple(
         self,
         activision_user_string_list: list[str],

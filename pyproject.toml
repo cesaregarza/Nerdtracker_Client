@@ -15,6 +15,9 @@ addopts = [
     "--showlocals",
     "--color=yes",
 ]
+markers = [
+    "slow: marks tests as slow",
+]
 
 [tool.black]
 line-length = 80
