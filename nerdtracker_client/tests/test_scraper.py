@@ -52,7 +52,6 @@ class TestParseTrackerHtml:
     ) -> None:
         soup = BeautifulSoup(html_page, "html.parser")
         stats = parse_tracker_html(soup)
-        # TODO: Find a better way to type: ignore this
         assert stats == joy_stats
 
 
@@ -70,7 +69,7 @@ class TestRetrieve:
     def test_retrieve_stats_multiple(
         self,
         activision_user_string_list: list[str],
-        stat_list: list[ntc_stats.StatColumns | None],
+        stat_list: list[ntc_stats.StatColumns | dict | None],
     ) -> None:
         stats = retrieve_stats_multiple(
             activision_user_string_list, cold_war_flag=True

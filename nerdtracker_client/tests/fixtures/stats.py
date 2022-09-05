@@ -144,7 +144,7 @@ def stat_list(
     clicky_stats: ntc_stats.StatColumns,
     cali_stats: ntc_stats.StatColumns,
     woodster_stats: ntc_stats.StatColumns,
-) -> list[ntc_stats.StatColumns | dict]:
+) -> list[ntc_stats.StatColumns | dict | None]:
     return [
         joy_stats,
         askinner_stats,
@@ -153,4 +153,6 @@ def stat_list(
         {},
         cali_stats,
         woodster_stats,
+        {},
+        None,
     ]

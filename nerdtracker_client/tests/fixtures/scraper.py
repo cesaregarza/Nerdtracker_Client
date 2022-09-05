@@ -10,7 +10,7 @@ def valid_activision_user_string() -> str:
 
 @pytest.fixture
 def invalid_activision_user_string() -> str:
-    return "Joy#999999999989"
+    return "Joy#99999999999999999989"
 
 
 @pytest.fixture
@@ -36,4 +36,6 @@ def activision_user_string_list() -> list[str]:
         "CycoChris",
         "Cali#4288543",
         "Woodster#8827717",
+        "Joy#99999999999999999989",
+        "",
     ]
