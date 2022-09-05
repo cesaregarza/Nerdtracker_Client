@@ -24,3 +24,16 @@ def html_page() -> str:
     with open(str(html_path), "r") as html_file:
         html = html_file.read()
     return html
+
+
+@pytest.fixture
+def activision_user_string_list() -> list[str]:
+    return [
+        "Joy#1648235",
+        "ASKINNER99",
+        "Unwitty#9383394",
+        "Luckyclikyclika",
+        "CycoChris",
+        "Cali#4288543",
+        "Woodster#8827717",
+    ]

@@ -144,6 +144,7 @@ def retrieve_stats(
 
 def retrieve_stats_multiple(
     user_list: list[str],
+    cold_war_flag: bool = False,
 ) -> list[ntc_stats.StatColumns | None]:
     """Retrieve stats from tracker.gg for multiple users using concurrency
 
@@ -154,6 +155,9 @@ def retrieve_stats_multiple(
 
     Args:
         user_list (list[str]): List of activision user IDs
+        cold_war_flag (bool): Flag to indicate whether to retrieve stats from
+            Cold War or Modern Warfare. Defaults to False, which retrieves
+            stats from Modern Warfare. True is mostly for testing purposes.
 
     Returns:
         list[dict]: List of dictionaries of stats
@@ -163,7 +167,9 @@ def retrieve_stats_multiple(
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         future_to_user = {
-            executor.submit(retrieve_page_from_tracker, scraper, user): user
+            executor.submit(
+                retrieve_page_from_tracker, scraper, user, cold_war_flag
+            ): user
             for user in user_list
             if user is not None and user != ""
         }
