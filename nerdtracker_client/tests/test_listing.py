@@ -1,4 +1,3 @@
-import pytest
 from freezegun import freeze_time
 
 from nerdtracker_client.player_list import EmptyListing, Listing

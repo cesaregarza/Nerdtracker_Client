@@ -1,3 +1,4 @@
+import concurrent.futures
 import urllib.parse
 from typing import Generator
 
@@ -5,6 +6,7 @@ import cloudscraper
 from bs4 import BeautifulSoup
 from bs4.element import ResultSet, Tag
 from cloudscraper import CloudScraper
+from cloudscraper.exceptions import CloudflareChallengeError
 
 import nerdtracker_client.constants.stats as ntc_stats
 
@@ -48,7 +50,14 @@ def retrieve_page_from_tracker(
     selected_url = mw_url if not cold_war_flag else cw_url
     base_url = "https://cod.tracker.gg/" + selected_url + "/profile/atvi/"
     tracker_url = base_url + activision_user_string + "/mp"
-    request = scraper.get(tracker_url)
+    try:
+        request = scraper.get(tracker_url)
+    except CloudflareChallengeError:
+        # In case of Cloudflare challenge, retry only once
+        try:
+            request = scraper.get(tracker_url)
+        except CloudflareChallengeError:
+            return BeautifulSoup("", "html.parser")
 
     # Parse the tracker.gg page using BeautifulSoup
     soup = BeautifulSoup(request.content, "html.parser")
@@ -124,3 +133,41 @@ def retrieve_stats(activision_user_string: str) -> ntc_stats.StatColumns:
     soup = retrieve_page_from_tracker(scraper, activision_user_string)
     stat_dict = parse_tracker_html(soup)
     return stat_dict
+
+
+def retrieve_stats_multiple(
+    user_list: list[str],
+) -> list[ntc_stats.StatColumns | None]:
+    """Retrieve stats from tracker.gg for multiple users using concurrency
+
+    Given a list of activision user IDs, retrieve the stats from tracker.gg
+    and return a list of StatColumns objects in the same order as the input. If
+    a user is not found, the corresponding entry in the list will be None. This
+    function uses concurrency to speed up the process.
+
+    Args:
+        user_list (list[str]): List of activision user IDs
+
+    Returns:
+        list[dict]: List of dictionaries of stats
+    """
+    scraper = create_scraper()
+    stat_list: list[ntc_stats.StatColumns | None] = [None] * len(user_list)
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        future_to_user = {
+            executor.submit(retrieve_page_from_tracker, scraper, user): user
+            for user in user_list
+            if user is not None and user != ""
+        }
+        for future in concurrent.futures.as_completed(future_to_user):
+            user = future_to_user[future]
+            try:
+                soup = future.result()
+            except Exception as exc:
+                print(f"{user} generated an exception: {exc}")
+            else:
+                stat_dict = parse_tracker_html(soup)
+                stat_list[user_list.index(user)] = stat_dict
+
+    return stat_list

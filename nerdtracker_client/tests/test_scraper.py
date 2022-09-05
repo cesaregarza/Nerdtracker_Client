@@ -6,6 +6,8 @@ from nerdtracker_client.scraper import (
     create_scraper,
     parse_tracker_html,
     retrieve_page_from_tracker,
+    retrieve_stats,
+    retrieve_stats_multiple,
 )
 
 
@@ -45,19 +47,22 @@ class TestScraper:
 
 
 class TestParseTrackerHtml:
-    def test_parse_tracker_html(self, html_page) -> None:
+    def test_parse_tracker_html(
+        self, html_page: str, joy_stats: ntc_stats.StatColumns
+    ) -> None:
         soup = BeautifulSoup(html_page, "html.parser")
         stats = parse_tracker_html(soup)
         # TODO: Find a better way to type: ignore this
-        assert stats[ntc_stats.KD_RATIO] == "1.79"  # type: ignore
-        assert stats[ntc_stats.WIN_PERC] == "52.9%"  # type: ignore
-        assert stats[ntc_stats.SCORE_PER_MIN] == "742.72"  # type: ignore
-        assert stats[ntc_stats.KILLS] == "52,349"  # type: ignore
-        assert stats[ntc_stats.DEATHS] == "29,297"  # type: ignore
-        assert stats[ntc_stats.WINS] == "793"  # type: ignore
-        assert stats[ntc_stats.LOSSES] == "535"  # type: ignore
-        assert stats[ntc_stats.TIES] == "8"  # type: ignore
-        assert stats[ntc_stats.ASSISTS] == "3,252"  # type: ignore
-        assert stats[ntc_stats.BEST_KILLSTREAK] == "31"  # type: ignore
-        assert stats[ntc_stats.AVG_LIFESPAN] == "27.5s"  # type: ignore
-        assert stats[ntc_stats.TOTAL_SCORE] == "9,973,255"  # type: ignore
+        assert stats == joy_stats
+
+
+class TestRetrieve:
+    def test_retrieve_stats(
+        self,
+        valid_activision_user_string: str,
+        joy_stats: ntc_stats.StatColumns,
+    ) -> None:
+        stats = retrieve_stats(valid_activision_user_string)
+        if stats == {}:
+            pytest.skip("Cloudflare challenge detected, skipping test")
+        assert stats == joy_stats

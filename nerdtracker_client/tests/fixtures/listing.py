@@ -29,17 +29,17 @@ def listing_true() -> Listing:
 
 
 @pytest.fixture
-def listing_with_stats(stats: ntc_stats.StatColumns) -> Listing:
+def listing_with_stats(fake_stats: ntc_stats.StatColumns) -> Listing:
     """Returns a listing object with stats
 
     Args:
-        stats (ntc_stats.StatColumns): The stats for the listing
+        fake_stats (ntc_stats.StatColumns): The stats for the listing
 
     Returns:
         Listing: A listing object
     """
     with freeze_time(DATE_STRING):
-        return Listing("5", stats=stats)
+        return Listing("5", stats=fake_stats)
 
 
 @pytest.fixture
