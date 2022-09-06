@@ -68,6 +68,8 @@ class Screenshotter:
             # In case the processing takes longer than the time interval, this
             # ensures the time left is at least 0
             time_left = max(self.next_call - time.time(), 0.0)
+            if time_left == 0.0:
+                self.next_call = time.time()
             self._timer = Timer(time_left, self._run)
             self._timer.start()
             self._is_running = True
