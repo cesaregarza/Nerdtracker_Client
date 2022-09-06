@@ -20,6 +20,7 @@ class Screenshotter:
 
     def __init__(
         self,
+        server_address: str,
         monitor_index: int = 1,
         time_interval: int | float = 0.5,
         start_immediately: bool = False,
@@ -27,6 +28,8 @@ class Screenshotter:
         """Constructor for the Screenshotter class
 
         Args:
+            server_address (str): The address of the server to send the
+                screenshots to.
             monitor_index (int): The monitor index to take screenshots
                 from. Not zero-indexed. Defaults to 1.
             time_interval (int | float): The time interval between
@@ -36,6 +39,7 @@ class Screenshotter:
                 screenshotting will start immediately upon instantiation.
         """
         self.sct = mss.mss()
+        self.server_address = server_address
         self.monitor = self.sct.monitors[monitor_index]
         self.size = (self.monitor["width"], self.monitor["height"])
         self.shape = (self.monitor["height"], self.monitor["width"], 3)
