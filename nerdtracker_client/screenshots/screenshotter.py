@@ -5,7 +5,7 @@ from types import TracebackType
 import mss
 import numpy as np
 import numpy.typing as npt
-from mss.screenshot import ScreenShot
+import requests
 
 
 class Screenshotter:
@@ -13,9 +13,8 @@ class Screenshotter:
     a specified time interval between screenshots. The screenshots are then sent
     to the NerdTracker_Server docker container for processing. This class does
     not do any processing itself, it only takes screenshots and sends them to
-    the server. It does not wait for a response from the server, and it does not
-    do any processing on the server's response. The server will decide whether
-    or not to send a response, and the client will then act on that response.
+    the server. The server will then process the screenshots and send the
+    results back to the client.
     """
 
     def __init__(
@@ -24,6 +23,7 @@ class Screenshotter:
         monitor_index: int = 1,
         time_interval: int | float = 0.5,
         start_immediately: bool = False,
+        timeout: int | float = 10,
     ) -> None:
         """Constructor for the Screenshotter class
 
@@ -37,6 +37,7 @@ class Screenshotter:
             start_immediately (bool): Whether or not to start the
                 screenshotting immediately. Defaults to False. If True, the
                 screenshotting will start immediately upon instantiation.
+            timeout (int | float): The timeout for the requests.post
         """
         self.sct = mss.mss()
         self.server_address = server_address
@@ -47,6 +48,7 @@ class Screenshotter:
         self._timer: Timer | None = None
         self._is_running: bool = False
         self.next_call = time.time()
+        self.timeout = float(timeout)
         if start_immediately:
             self.timer_start()
 
@@ -86,7 +88,7 @@ class Screenshotter:
         exc_value: BaseException | None,
         traceback: TracebackType | None,
     ) -> None:
-        """Upon closing, close mss.mss()
+        """Upon closing, close mss.mss() and stop the timer, if it is running.
 
         Args:
             exc_type (type[BaseException] | None): Exception type, unused
@@ -109,15 +111,23 @@ class Screenshotter:
         cut_frame = frame[:, :, :-1]
         return cut_frame
 
-    def send_screenshot(self, screenshot: npt.NDArray[np.uint8]) -> None:
-        """Sends the screenshot to the server for processing. Does not wait for
-        a response.
+    def send_screenshot(
+        self, screenshot: npt.NDArray[np.uint8]
+    ) -> requests.Response:
+        """Sends the screenshot to the server for processing.
 
         Args:
             screenshot (npt.NDArray[np.uint8]): The screenshot to send to the
                 server.
+
+        Returns:
+            requests.Response: The response from the server.
         """
-        pass
+        array_string = np.array_str(screenshot)
+        response = requests.post(
+            self.server_address, data=array_string, timeout=self.timeout
+        )
+        return response
 
     def process_screenshot(self) -> None:
         screenshot = self.take_screenshot()
