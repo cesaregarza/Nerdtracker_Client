@@ -131,4 +131,5 @@ class Screenshotter:
 
     def process_screenshot(self) -> None:
         screenshot = self.take_screenshot()
-        self.send_screenshot(screenshot)
+        response = self.send_screenshot(screenshot)
+        print(response.text)
